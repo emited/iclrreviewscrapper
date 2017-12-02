@@ -3,7 +3,6 @@ import pickle as pkl
 import time
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-import numpy as np
 
 
 def parse_for_article_urls(home_page_html):
@@ -36,7 +35,6 @@ if __name__ == '__main__':
     review_dump_path = 'reviews2.pkl'
     html_iclr_home_page_saved_path = 'html/ICLR 2018 Conference | OpenReview.html'
 
-    iclr_ratings = []
     iclr_reviews = []
     article_page_urls = parse_for_article_urls(open(html_iclr_home_page_saved_path, 'rb').read())
     for i, url in enumerate(article_page_urls):
@@ -44,11 +42,11 @@ if __name__ == '__main__':
         print('{} / {}'.format(i + 1, len(article_page_urls)))
         print('Opening and parsing url {}...'.format(url))
         reviews = open_and_parse_for_reviews(url)
-        article_mean_rating = np.mean([int(r['rating'][0]) for r in reviews])
-        print('Scores: ' + ', '.join([r['rating'][0] for r in reviews]) + '\tMean : {}'.format(article_mean_rating))
-        iclr_ratings.append(article_mean_rating)
-        iclr_reviews.append({'url':url, 'reviews':reviews})
+        article_mean_rating =  sum([int(r['rating'][0]) for r in reviews]) / len(reviews)
+        print('Ratings: ' + ', '.join([r['rating'][0] for r in reviews]) + '\tMean : {}'.format(article_mean_rating))
+        iclr_mean_rating = (iclr_mean_rating * i + article_mean_rating) / (i + 1)
         print('Current ICLR Mean score: {} \n\n'.format(np.mean(iclr_ratings)))
+        iclr_reviews.append({'url':url, 'reviews':reviews})
         except:    
             print('Error !!')
         finally:
