@@ -32,26 +32,30 @@ def open_and_parse_for_reviews(article_page_url):
 
 
 if __name__ == '__main__':
-    review_dump_path = 'reviews2.pkl'
+    review_dump_path = 'reviews_all.pkl'
     html_iclr_home_page_saved_path = 'html/ICLR 2018 Conference | OpenReview.html'
 
     iclr_reviews = []
+    iclr_avg_rating = 0
     article_page_urls = parse_for_article_urls(open(html_iclr_home_page_saved_path, 'rb').read())
     for i, url in enumerate(article_page_urls):
-        #try:
-        print('{} / {}'.format(i + 1, len(article_page_urls)))
-        print('Opening and parsing url {}...'.format(url))
-        reviews = open_and_parse_for_reviews(url)
-        article_mean_rating =  sum([int(r['rating'][0]) for r in reviews]) / len(reviews)
-        print('Ratings: ' + ', '.join([r['rating'][0] for r in reviews]) + '\tMean : {}'.format(article_mean_rating))
-        iclr_mean_rating = (iclr_mean_rating * i + article_mean_rating) / (i + 1)
-        print('Current ICLR Mean score: {} \n\n'.format(np.mean(iclr_ratings)))
-        iclr_reviews.append({'url':url, 'reviews':reviews})
+        try:
+            print('{} / {}'.format(i + 1, len(article_page_urls)))
+            print('Opening and parsing url ' + url)
+            reviews = open_and_parse_for_reviews(url)
+            article_avg_rating =  sum([int(r['rating'].split(':')[0]) for r in reviews]) / len(reviews)
+            print('Ratings: ' + ', '.join([r['rating'].split(':')[0] for r in reviews]) + '\tAverage : {}'.format(article_avg_rating))
+            iclr_avg_rating = (iclr_avg_rating * i + article_avg_rating) / (i + 1)
+            print('Current ICLR Average score: {} \n\n'.format(iclr_avg_rating))
+            iclr_reviews.append({'url':url, 'reviews':reviews})
         except:    
             print('Error !!')
         finally:
             print('dumping all ICLR reviews in {}'.format(review_dump_path))    
-            pkl.dump(iclr_reviews, open(review_dump_path, 'wb'))
+            f = open(review_dump_path, 'wb')
+            pkl.dump(iclr_reviews, f)
+            f.close()
+            
 
     print('dumping all ICLR reviews in {}'.format(review_dump_path))    
     pkl.dump(iclr_reviews, open(review_dump_path, 'wb'))
